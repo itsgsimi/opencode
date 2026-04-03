@@ -24,6 +24,7 @@ import { FileTabContent } from "@/pages/session/file-tabs"
 import { createOpenSessionFileTab, createSessionTabs, getTabReorderIndex, type Sizing } from "@/pages/session/helpers"
 import { setSessionHandoff } from "@/pages/session/handoff"
 import { useSessionLayout } from "@/pages/session/session-layout"
+import { BenchTab } from "@/pages/session/bench-tab"
 
 export function SessionSidePanel(props: {
   reviewPanel: () => JSX.Element
@@ -250,6 +251,11 @@ export function SessionSidePanel(props: {
                           </div>
                         </Tabs.Trigger>
                       </Show>
+                      <Tabs.Trigger value="bench">
+                        <div class="flex items-center gap-1.5">
+                          <div>Bench</div>
+                        </div>
+                      </Tabs.Trigger>
                       <Show when={contextOpen()}>
                         <Tabs.Trigger
                           value="context"
@@ -309,6 +315,14 @@ export function SessionSidePanel(props: {
                       <Show when={activeTab() === "review"}>{props.reviewPanel()}</Show>
                     </Tabs.Content>
                   </Show>
+
+                  <Tabs.Content value="bench" class="flex flex-col h-full overflow-hidden contain-strict">
+                    <Show when={activeTab() === "bench"}>
+                      <div class="relative pt-2 flex-1 min-h-0 overflow-auto">
+                        <BenchTab />
+                      </div>
+                    </Show>
+                  </Tabs.Content>
 
                   <Tabs.Content value="empty" class="flex flex-col h-full overflow-hidden contain-strict">
                     <Show when={activeTab() === "empty"}>

@@ -77,7 +77,72 @@ export namespace LLM {
 
   export const defaultLayer = layer
 
+  // Track which model is currently loaded in the LLM container
+  let _currentLoadedModel: string | undefined
+  let _detectedOnce = false
+
+  async function ensureModelLoaded(modelID: string) {
+    // On first call, detect what's already running so we don't swap needlessly
+    if (!_detectedOnce) {
+      _detectedOnce = true
+      try {
+        const resp = await fetch("http://localhost:6969/v1/models")
+        if (resp.ok) {
+          const data = await resp.json() as { data?: Array<{ id?: string }> }
+          const running = data.data?.[0]?.id
+          if (running) {
+            _currentLoadedModel = running
+            log.info("detected running model", { model: running })
+          }
+        }
+      } catch {
+        // LLM might not be up yet — that's fine
+      }
+    }
+
+    // Skip if same model is already loaded
+    if (_currentLoadedModel === modelID) return
+
+    const projectDir = Instance.directory
+    const modelsDir = `${projectDir}/models`
+
+    // Check if this is a GGUF file that needs container swap
+    const fs = await import("fs")
+    const isGguf = modelID.endsWith(".gguf")
+    const existsInModels = isGguf && fs.existsSync(`${modelsDir}/${modelID}`)
+
+    if (!existsInModels) {
+      // Not a local GGUF — just update tracking
+      _currentLoadedModel = modelID
+      return
+    }
+
+    log.info("model swap detected", { from: _currentLoadedModel, to: modelID })
+
+    // Run sentinel coder hotswap via subprocess
+    const { execSync } = await import("child_process")
+    const path = await import("path")
+    const sentinelBin = path.join(projectDir, ".venv", "bin", "sentinel")
+    try {
+      log.info("hot-swapping container", { model: modelID, bin: sentinelBin })
+      execSync(`"${sentinelBin}" coder hotswap "${modelID}"`, {
+        cwd: projectDir,
+        timeout: 600_000, // 10 min for large models
+        stdio: "pipe",
+        env: { ...process.env, PATH: `${path.join(projectDir, ".venv", "bin")}:${process.env.PATH}` },
+      })
+      _currentLoadedModel = modelID
+      log.info("model swap complete", { model: modelID })
+    } catch (err) {
+      log.error("model swap failed", { model: modelID, error: String(err) })
+      throw new Error(`Failed to swap to model ${modelID}: ${err}`)
+    }
+  }
+
   export async function stream(input: StreamRequest) {
+    // Hot-swap the LLM container if the model changed
+    await ensureModelLoaded(input.model.id)
+
     const l = log
       .clone()
       .tag("providerID", input.model.providerID)

@@ -1,0 +1,311 @@
+/* Bench Tab — benchmark results, comparison charts, and model cards */
+
+/* ── Main container ── */
+
+[data-component="bench-tab"] {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  gap: 1rem;
+  font-family: var(--font-family-sans);
+  color: var(--text-base);
+  background: var(--background-base);
+}
+
+/* ── Toolbar ── */
+
+[data-component="bench-toolbar"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-weak-base);
+}
+
+[data-component="bench-toolbar"] [data-slot="title"] {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-strong);
+  margin-right: auto;
+}
+
+[data-component="bench-toolbar"] [data-slot="action"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.625rem;
+  font-size: var(--font-size-small);
+  font-family: var(--font-family-sans);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-base);
+  background: var(--surface-base);
+  border: 1px solid var(--border-weak-base);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+[data-component="bench-toolbar"] [data-slot="action"]:hover {
+  background: var(--surface-base-hover);
+}
+
+[data-component="bench-toolbar"] [data-slot="action"][data-active="true"] {
+  background: var(--surface-interactive-base);
+  border-color: var(--border-selected);
+  color: var(--text-interactive-base);
+}
+
+/* ── Section headers ── */
+
+[data-component="bench-tab"] [data-slot="section-header"] {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-weak);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 0.375rem;
+}
+
+/* ── Results table ── */
+
+[data-component="bench-results-table"] {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+[data-component="bench-results-table"] th {
+  text-align: left;
+  padding: 0.5rem;
+  color: var(--text-weak);
+  border-bottom: 1px solid var(--border-weak-base);
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-family-sans);
+  white-space: nowrap;
+}
+
+[data-component="bench-results-table"] th[data-align="right"] {
+  text-align: right;
+}
+
+[data-component="bench-results-table"] td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-weak-base);
+  font-family: var(--font-family-mono);
+  font-feature-settings: var(--font-family-mono--font-feature-settings);
+  vertical-align: middle;
+}
+
+[data-component="bench-results-table"] td[data-align="right"] {
+  text-align: right;
+}
+
+[data-component="bench-results-table"] tr {
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+[data-component="bench-results-table"] tr:hover {
+  background: var(--surface-base-hover);
+}
+
+[data-component="bench-results-table"] tr[data-selected="true"] {
+  background: var(--surface-interactive-weak);
+}
+
+[data-component="bench-results-table"] tr[data-selected="true"]:hover {
+  background: var(--surface-interactive-base);
+}
+
+[data-component="bench-results-table"] [data-slot="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--text-interactive-base);
+  cursor: pointer;
+}
+
+[data-component="bench-results-table"] [data-slot="delta"] {
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+[data-component="bench-results-table"] [data-slot="delta"][data-trend="positive"] {
+  color: var(--text-on-success-base);
+  background: var(--surface-success-weak);
+}
+
+[data-component="bench-results-table"] [data-slot="delta"][data-trend="negative"] {
+  color: var(--text-on-critical-base);
+  background: var(--surface-critical-weak);
+}
+
+[data-component="bench-results-table"] [data-slot="delta"][data-trend="neutral"] {
+  color: var(--text-weak);
+  background: var(--surface-base);
+}
+
+/* ── Bar chart ── */
+
+[data-component="bench-bar-chart"] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+[data-component="bench-bar-chart"] [data-slot="chart-title"] {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-strong);
+}
+
+[data-component="bench-bar-chart"] [data-slot="bar-row"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+[data-component="bench-bar-chart"] [data-slot="bar-label"] {
+  width: 10rem;
+  min-width: 5rem;
+  font-size: var(--font-size-small);
+  color: var(--text-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+[data-component="bench-bar-chart"] [data-slot="bar-track"] {
+  flex: 1;
+  height: 20px;
+  background: var(--background-weak);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+[data-component="bench-bar-chart"] [data-slot="bar-fill"] {
+  height: 100%;
+  border-radius: var(--radius-md);
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+[data-component="bench-bar-chart"] [data-slot="bar-value"] {
+  width: 5.5rem;
+  min-width: 5.5rem;
+  font-size: var(--font-size-small);
+  font-family: var(--font-family-mono);
+  font-feature-settings: var(--font-family-mono--font-feature-settings);
+  color: var(--text-strong);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Charts container ── */
+
+[data-component="bench-charts"] {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-weak-base);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+}
+
+/* ── Model cards grid ── */
+
+[data-component="model-cards"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.5rem;
+}
+
+[data-component="model-card"] {
+  padding: 0.75rem;
+  border: 1px solid var(--border-weak-base);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+[data-component="model-card"]:hover {
+  background: var(--surface-base-hover);
+  border-color: var(--border-base);
+}
+
+[data-component="model-card"][data-active="true"] {
+  border-color: var(--surface-success-strong);
+}
+
+[data-component="model-card"] [data-slot="model-name"] {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-component="model-card"] [data-slot="model-meta"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+  font-size: 12px;
+  color: var(--text-weak);
+  font-family: var(--font-family-mono);
+  font-feature-settings: var(--font-family-mono--font-feature-settings);
+}
+
+[data-component="model-card"] [data-slot="health-dot"] {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+[data-component="model-card"] [data-slot="health-dot"][data-status="healthy"] {
+  background: var(--surface-success-strong);
+}
+
+[data-component="model-card"] [data-slot="health-dot"][data-status="offline"] {
+  background: var(--text-weaker);
+}
+
+[data-component="model-card"] [data-slot="health-dot"][data-status="loading"] {
+  background: var(--surface-warning-strong);
+  animation: bench-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes bench-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ── Empty state ── */
+
+[data-component="bench-tab"] [data-slot="empty"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: var(--text-weak);
+  font-size: var(--font-size-small);
+  text-align: center;
+  gap: 0.5rem;
+}
