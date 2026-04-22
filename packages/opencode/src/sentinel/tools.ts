@@ -174,7 +174,7 @@ export const SentinelBenchLoadTool = Tool.define("sentinel_bench_load", {
     passes: z.number().optional().describe("Benchmark passes (default 3)"),
     ctx: z.number().optional().describe("Context size override"),
   }),
-  async execute(args) {
+  async execute(args, _ctx) {
     const modelsDir = path.join(Instance.directory, "models")
     const matches = findMatchingGguf(modelsDir, args.model)
 
@@ -288,7 +288,7 @@ export const SentinelHotswapTool = Tool.define("sentinel_hotswap", {
     model: z.string().describe("GGUF filename or pattern (e.g. Qwen3.5-27B, gpt-oss-20b)"),
     ctx: z.number().optional().describe("Context size override (auto-detected from model catalog if omitted)"),
   }),
-  async execute(args) {
+  async execute(args, _ctx) {
     const modelsDir = path.join(Instance.directory, "models")
     const matches = findMatchingGguf(modelsDir, args.model)
 
@@ -410,7 +410,7 @@ export const SentinelBenchCompareTool = Tool.define("sentinel_bench_compare", {
   parameters: z.object({
     last: z.number().optional().describe("Number of recent runs to compare (default 3)"),
   }),
-  async execute(args) {
+  async execute(args, _ctx) {
     const count = args.last ?? 3
     const resultsDir = path.join(Instance.directory, "benchmarks", "results", "inference")
     const files = recentJsonFiles(resultsDir, count)

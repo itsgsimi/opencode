@@ -396,7 +396,7 @@ export function BenchTab(props: BenchTabProps): JSX.Element {
   }
 
   const clearSelection = () => {
-    setSelected(new Set())
+    setSelected(new Set<string>())
   }
 
   const selectedResults = createMemo(() => {
