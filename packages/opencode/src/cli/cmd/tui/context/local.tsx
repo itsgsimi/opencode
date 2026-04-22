@@ -13,6 +13,8 @@ import { useArgs } from "./args"
 import { useSDK } from "./sdk"
 import { RGBA } from "@opentui/core"
 import { Filesystem } from "@/util/filesystem"
+import { ModelState } from "@/sentinel/model-state"
+import { Instance } from "@/project/instance"
 
 export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
   name: "Local",
@@ -296,6 +298,20 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               save()
             }
           })
+          // Preload: trigger container swap eagerly so it's ready before the first message
+          if (model.modelID.endsWith(".gguf")) {
+            const normalized = ModelState.normalize(model.modelID)
+            if (ModelState.currentModel() !== normalized) {
+              toast.show({ message: `Loading ${normalized}...`, variant: "info", duration: 10000 })
+              ModelState.ensure(model.modelID, Instance.directory).then((ok) => {
+                toast.show({
+                  message: ok ? `${normalized} ready` : `Failed to load ${normalized}`,
+                  variant: ok ? "success" : "error",
+                  duration: 5000,
+                })
+              })
+            }
+          }
         },
         toggleFavorite(model: { providerID: string; modelID: string }) {
           batch(() => {

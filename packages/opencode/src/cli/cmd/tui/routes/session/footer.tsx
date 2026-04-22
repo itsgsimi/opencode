@@ -1,10 +1,11 @@
-import { createMemo, Match, onCleanup, onMount, Show, Switch } from "solid-js"
+import { createMemo, createSignal, Match, onCleanup, onMount, Show, Switch } from "solid-js"
 import { useTheme } from "../../context/theme"
 import { useSync } from "../../context/sync"
 import { useDirectory } from "../../context/directory"
 import { useConnected } from "../../component/dialog-model"
 import { createStore } from "solid-js/store"
 import { useRoute } from "../../context/route"
+import { ModelState } from "@/sentinel/model-state"
 
 export function Footer() {
   const { theme } = useTheme()
@@ -19,6 +20,25 @@ export function Footer() {
   })
   const directory = useDirectory()
   const connected = useConnected()
+
+  // Track LLM model swap state reactively
+  const [llmStatus, setLlmStatus] = createSignal<{ status: ModelState.Status; model?: string; target?: string }>({
+    status: ModelState.status(),
+    model: ModelState.currentModel(),
+    target: ModelState.targetModel(),
+  })
+  onMount(() => {
+    const unsub = ModelState.subscribe(() => {
+      setLlmStatus({
+        status: ModelState.status(),
+        model: ModelState.currentModel(),
+        target: ModelState.targetModel(),
+      })
+    })
+    // Detect on first mount
+    ModelState.detect()
+    onCleanup(unsub)
+  })
 
   const [store, setStore] = createStore({
     welcome: false,
@@ -82,6 +102,20 @@ export function Footer() {
                 {mcp()} MCP
               </text>
             </Show>
+            <Switch>
+              <Match when={llmStatus().status === "swapping"}>
+                <text fg={theme.warning}>
+                  <span style={{ fg: theme.warning }}>◎ </span>
+                  {llmStatus().target ?? "model"}...
+                </text>
+              </Match>
+              <Match when={llmStatus().model}>
+                <text fg={theme.text}>
+                  <span style={{ fg: theme.success }}>◉ </span>
+                  {llmStatus().model!.replace(/\.gguf$/, "")}
+                </text>
+              </Match>
+            </Switch>
             <text fg={theme.textMuted}>/status</text>
           </Match>
         </Switch>

@@ -1550,6 +1550,32 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     </TooltipKeybind>
                   </Show>
                 </div>
+                <Show when={local.model.swapStatus}>
+                  {(status) => (
+                    <div
+                      data-component="prompt-model-swap-status"
+                      class="flex items-center gap-1 text-11-regular px-2"
+                      classList={{
+                        "text-text-warning animate-pulse": status().state === "swapping",
+                        "text-text-success": status().state === "ready",
+                        "text-text-danger": status().state === "error",
+                      }}
+                    >
+                      <Show when={status().state === "swapping"}>
+                        <span class="inline-block size-2 rounded-full bg-current animate-pulse" />
+                        Loading...
+                      </Show>
+                      <Show when={status().state === "ready"}>
+                        <span class="inline-block size-2 rounded-full bg-current" />
+                        Ready
+                      </Show>
+                      <Show when={status().state === "error"}>
+                        <span class="inline-block size-2 rounded-full bg-current" />
+                        Failed
+                      </Show>
+                    </div>
+                  )}
+                </Show>
                 <div data-component="prompt-variant-control">
                   <TooltipKeybind
                     placement="top"

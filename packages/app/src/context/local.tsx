@@ -290,6 +290,11 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         if (!entry) return
         model.set({ providerID: entry.provider.id, modelID: entry.id })
       },
+      swapStatus: undefined as
+        | undefined
+        | { state: "swapping"; model: string }
+        | { state: "ready"; model: string }
+        | { state: "error"; model: string },
       set(item: ModelKey | undefined, options?: { recent?: boolean }) {
         batch(() => {
           setStore("last", {
@@ -304,6 +309,26 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           if (!options?.recent) return
           models.recent.push(item)
         })
+        // Preload: trigger container swap eagerly for GGUF models
+        if (item?.modelID.endsWith(".gguf")) {
+          model.swapStatus = { state: "swapping", model: item.modelID }
+          fetch(`${sdk.url}/sentinel/preload?directory=${encodeURIComponent(sdk.directory)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ model: item.modelID }),
+          })
+            .then((r) => r.json())
+            .then((data: any) => {
+              model.swapStatus = data.success
+                ? { state: "ready", model: data.model ?? item.modelID }
+                : { state: "error", model: item.modelID }
+              // Clear "ready" indicator after a few seconds
+              if (data.success) setTimeout(() => (model.swapStatus = undefined), 5000)
+            })
+            .catch(() => {
+              model.swapStatus = { state: "error", model: item.modelID }
+            })
+        }
       },
       visible(item: ModelKey) {
         return models.visible(item)

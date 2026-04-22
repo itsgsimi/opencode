@@ -118,8 +118,10 @@ export namespace SentinelDocker {
     projectDir: string,
     env: Record<string, string>,
   ): Promise<void> {
-    await compose(["stop", service], projectDir)
-    await compose(["rm", "-f", service], projectDir)
+    await compose(["stop", service], projectDir).catch(() => {})
+    // rm may fail if removal is already in progress — safe to ignore
+    await compose(["rm", "-f", service], projectDir).catch(() => {})
+    await sleep(500)
     await compose(["up", "-d", service], projectDir, env)
   }
 
